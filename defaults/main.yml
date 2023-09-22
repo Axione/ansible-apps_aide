@@ -1,0 +1,19 @@
+---
+## Install build
+aide_install_method: src
+aide_force_install: false
+aide_bin_dir: "/usr/local/bin/"
+aide_version: "0.18.6"
+aide_url: "https://github.com/aide/aide/releases/download/v{{ aide_version }}/aide-{{ aide_version }}.tar.gz"
+aide_build_dir: "aide-{{ aide_version }}"
+aide_tmp_dir: /tmp
+
+#installation
+aide_pkg: "aide"
+aide_db_path: "/var/lib/aide"
+aide_log_path: "/var/log/aide"
+aide_config_path: "/etc/aide"
+
+#Config
+aide_gzip_dbout: "yes"
+aide_log_level: "warning"

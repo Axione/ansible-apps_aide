@@ -1,0 +1,110 @@
+---
+- name: "Check for aide binary"
+  ansible.builtin.stat:
+    path: "/usr/local/bin/aide"
+  changed_when: false
+  register: aide_bin
+
+- name: "Install from source"
+  when:
+    - aide_install_method == 'src'
+    - not aide_bin.stat.exists or aide_force_install | bool
+  block:
+    - name: "Install dependencies"
+      ansible.builtin.package:
+        name: "{{ aide_pkg }}"
+        state: present
+
+    - name: "Unarchive source"
+      ansible.builtin.unarchive:
+        src: '{{ aide_url }}'
+        dest: '{{ aide_tmp_dir }}'
+        remote_src: true
+
+    - name: "Run configure..."
+      ansible.builtin.command: ./configure --with-e2fsattrs --bindir={{ aide_bin_dir }}
+      args:
+        chdir: '{{ aide_tmp_dir }}/{{ aide_build_dir }}'
+      changed_when: false
+
+    - name: "Run make..."
+      community.general.make:
+        chdir: '{{ aide_tmp_dir }}/{{ aide_build_dir }}'
+
+    - name: "Run make install..."
+      community.general.make:
+        chdir: '{{ aide_tmp_dir }}/{{ aide_build_dir }}'
+        target: install
+
+- name: "Install from repository"
+  when: aide_install_method == 'repo'
+  block:
+    - name: "Install aide package"
+      ansible.builtin.package:
+        name: "{{ aide_pkg }}"
+        state: "present"
+      retries: 3
+      register: "aide_installed"
+      until: "aide_installed is succeeded"
+
+- name: "Ensure aide directories exists"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0700"
+  with_items:
+    - "{{ aide_log_path }}"
+    - "{{ aide_db_path }}"
+    - "{{ aide_config_path }}"
+    - "{{ aide_config_path }}/aide.conf.d"
+
+- name: "Check for existing aide database"
+  ansible.builtin.stat:
+    path: "{{ aide_db_path }}/aide.db"
+  register: aide_db
+  changed_when: "not aide_db.stat.exists"
+  notify:
+    - "Initialize aide database"
+    - "Move new aide database into place"
+
+- name: "Configure aide"
+  ansible.builtin.template:
+    src: "aide.conf.j2"
+    dest: "{{ aide_config_path }}/aide.conf"
+    mode: "0644"
+    #validate: "{{ aide_path.stdout }} --config-check --config %s"
+
+#Setup crontab
+#- name: "Ensure aide check is setup in crontab - No Email Report"
+#  ansible.builtin.cron:
+#    name: "{{ aide_cronjob_name }}"
+#    backup: "yes"
+#    user: "root"
+#    state: "present"
+#    minute: "{{ aide_cron_sched_min }}"
+#    hour: "{{ aide_cron_sched_hr }}"
+#    day: "{{ aide_cron_sched_day }}"
+#    month: "{{ aide_cron_sched_mon }}"
+#    weekday: "{{ aide_cron_sched_wkd }}"
+#    job: "{{ aide_path.stdout }} --check -c {{ aide_conf_path }}"
+#  when:
+#    - "aide_cron_email_notify_recipients | length < 1"
+#    - "aide_cron_schedule_check"
+#    - "aide_cronjob_name is defined"
+#    - "aide_cron_sched_min is defined"
+#    - "aide_cron_sched_hr is defined"
+#    - "aide_cron_sched_day is defined"
+#    - "aide_cron_sched_mon is defined"
+#    - "aide_cron_sched_wkd is defined"
+#
+#- name: "Update aide database"
+#  ansible.builtin.command: "{{ aide_path.stdout }} -u -c {{ aide_conf_path }}"
+#  register: "aide_update"
+#  failed_when: "aide_update.rc > 7"
+#  when:
+#    - "aide_db_check.stat.exists"
+#    - "aide_update_db"
+#  notify:
+#    - "Move new aide database into place"
