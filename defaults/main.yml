@@ -1,6 +1,6 @@
 ---
 ## Install build
-aide_install_method: src
+aide_install_method: src #or repo
 aide_force_install: false
 aide_bin_dir: "/usr/local/bin/"
 aide_version: "0.18.6"
