@@ -27,11 +27,6 @@ molecule_debian10:
   image: lotusnoir/molecule_play
   script:
     - MOLECULE_DISTRIB=debian10 molecule test
-molecule_oraclelinux9:
-  stage: molecule
-  image: lotusnoir/molecule_play
-  script:
-    - MOLECULE_DISTRIB=oraclelinux9 molecule test
 molecule_ubuntu18:
   stage: molecule
   image: lotusnoir/molecule_play
@@ -62,7 +57,6 @@ changelog:
     - molecule_debian12
     - molecule_debian11
     - molecule_debian10
-    - molecule_oraclelinux9
     - molecule_ubuntu18
     - molecule_ubuntu22
     - molecule_ubuntu20
