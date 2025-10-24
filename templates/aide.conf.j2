@@ -6,7 +6,7 @@
 
 # set environment for executable config files included by x_include
 @@x_include_setenv UPAC_settingsd /etc/aide/aide.settings.d
-@@x_include_setenv PATH /bin:/usr/bin
+@@x_include_setenv PATH /bin:{{ aide_install_dir }}
 
 # The daily cron job depends on these paths and settings
 database_in=file:{{ aide_db_path }}/aide.db

@@ -1,5 +1,5 @@
 ---
-aide_pkg:
+aide_compile_pkg:
   - gcc
   - make
   - bison
