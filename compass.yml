@@ -1,0 +1,17 @@
+name: ansible-apps_aide
+id: ari:cloud:compass:13ccdfa1-fb5d-41a4-9fd5-2c23ef1d97ea:component/dd5a9e2b-9095-4ab0-adb9-13a57e0ef868/f0b12c1d-edb9-4bfe-8f8a-060777094974
+description: null
+configVersion: 1
+typeId: OTHER
+ownerId: ari:cloud:identity::team/6eaeb363-b375-4c63-9ed1-1868aaa3a6e4
+fields:
+  tier: 4
+links:
+  - name: null
+    type: REPOSITORY
+    url: https://github.com/Axione/ansible-apps_aide
+relationships:
+  DEPENDS_ON: []
+labels:
+  - source:github
+customFields: null
